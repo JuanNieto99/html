@@ -1,0 +1,6 @@
+primero clonar este proyecto
+
+cambiar las correcciones de 000-default.conf
+
+dar permisos a toda la carpeta "chmod -R 777 html" (buscar otro codigo que de los permisos justos)
+
