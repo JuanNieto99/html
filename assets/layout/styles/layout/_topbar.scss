@@ -143,3 +143,81 @@
         }
     }
 }
+
+.topbar-buttons {
+
+    display: flex;
+    height: 3rem;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    padding-left: 7px;
+    cursor: pointer;
+    border-left: 0.7px #6c757d solid;
+
+    &.caja {
+        width: 220px;
+        border-left: 0px solid #e3e3e3;
+    }
+
+
+    &.calendario {
+        width: 170px;
+    }
+
+    &.usuario {
+        width: 200px;
+        cursor: default
+    }
+
+    &.logout {
+        width: 70px;
+    }
+
+    i {
+        font-size: 1.5rem;
+        margin-left: 15px;
+    }
+}
+
+
+.user-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.logout-label {
+    display: none;
+}
+
+//// sombras para los botones de topbar
+// .topbar-buttons:hover {
+//     box-shadow: 0 10px 10px -10px #6c757d; // Ajusta estos valores a tus necesidades
+//     transition: 0.5s;
+// }
+
+@media (max-width: 984px){
+    .topbar-buttons {
+        border-left: 0px #6c757d solid;
+        width: 100%;
+
+        &.caja, &.calendario, &.usuario, &.logout {
+            width: 100%;
+        }
+    }
+
+    .user-label {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .logout-label {
+        display: flex;
+        width: 100%;
+    }
+}
