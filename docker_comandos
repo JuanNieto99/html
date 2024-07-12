@@ -1,0 +1,2 @@
+docker build -t angular:2.0 .
+sudo docker run   --name angular  -p 80:80 --network a62f3b68d90c angular:2.0

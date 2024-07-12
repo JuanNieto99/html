@@ -1,0 +1,120 @@
+<ngx-spinner type="ball-scale-multiple"></ngx-spinner>
+
+<div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+    <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-row">
+        <div>
+            <div class="font-medium text-3xl text-900">Bodega</div>
+            <div class="flex align-items-center text-700 flex-wrap">
+                <div class="mr-5 flex align-items-center mt-3">
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 lg:mt-0">
+            <button pButton pRipple label="Crear" (click)="openModal()" *ngIf="permisoCrear" class="p-button-outlined mr-2" icon=""></button>
+        </div>
+    </div>
+</div>
+<div class="grid mt-3">
+    <div class="col-12">
+        <div class="card px-3 py-3">
+            <p-table [value]="inventoryData" [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll" [loading]="loadingTable" [rows]="8" [globalFilterFields]="['nombre','medida','precio','cantidad', 'inventario','acciones']"  selectionMode="multiple" [rowHover]="true" dataKey="usuario" (onPage)="onPage($event)">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span></span>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <form [formGroup]="formSearch" >
+                                <div class="p-inputgroup">
+                                    <input formControlName="search" pInputText type="text" placeholder="Buscar..."  (keyup.enter)="buscarPorTecla($event)" (input)="searchInput()"  class="w-full sm:w-auto"/>
+                                    <button type="button" pButton pRipple   class="pi pi-search" (click)="search()"></button>
+                                </div>
+                            </form>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Hotel</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-inventory>
+                    <tr>
+                        <td>{{ inventory.hotel ? inventory.hotel.nombre : '' }}</td>
+                        <td>{{ inventory.nombre }}</td>
+                        <td>{{ inventory.descripcion }}</td>
+                        <td class="flex gap-2">
+                            <p-button (click)="editInventory(inventory.id)" *ngIf="permisoActualizar"  icon="pi pi-pencil" severity="info"></p-button>
+                            <p-confirmDialog></p-confirmDialog>
+                            <p-button (click)="confirmDelete(inventory.id)" *ngIf="permisoEliminar"  icon="pi pi-trash" severity="danger"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <br>
+            <div style="text-align: center;">
+                <span class="p-buttonset">
+                    <button pButton pRipple label="" icon="pi pi-arrow-left"   [disabled]="!disablePageLeft" (click)="leftTable()" ></button>
+                    <button pButton pRipple [label]="pageActual" ></button>
+                    <button pButton pRipple label="" icon="pi pi-arrow-right" [disabled]="!disablePageRight" (click)="rightTable()"></button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Crear -->
+<p-dialog header="Crear Inventario" [(visible)]="visibleModalInventory" [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formCreateInventory" (ngSubmit)="submitCreate()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-6">
+					<label>Hotel</label>
+					<p-dropdown [options]="hotel" optionLabel="nombre" formControlName="hotel_id" ></p-dropdown>
+                    <div style="color: red;" *ngIf="formCreateInventory.get('hotel_id').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Nombre de inventario</label>
+                    <input type="text"  pInputText class="w-full mb-3 border-round-3xl" formControlName="nombre">
+                    <div style="color: red;" *ngIf="formCreateInventory.get('nombre').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <label>Descripción</label>
+                    <input type="text"  pInputText class="w-full mb-3 border-round-3xl" formControlName="descripcion">
+                    <div style="color: red;" *ngIf="formCreateInventory.get('descripcion').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button pButton pRipple label="Crear Inventario" icon="" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit" [disabled]="formCreateInventory.invalid"></button>
+                </div>
+            </div>
+        </form>
+	</div>
+</p-dialog>
+<!-- Editar -->
+<p-dialog header="Editar Producto" [(visible)]="visibleModalInventarioEditar"  [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formEditInventory" (ngSubmit)="submitUpdate()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-6">
+					<label>Hotel</label>
+					<p-dropdown [options]="hotel" optionLabel="nombre" formControlName="hotel_id" ></p-dropdown>
+                    <div style="color: red;" *ngIf="formEditInventory.get('hotel_id').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Nombre de inventario</label>
+                    <input type="text"  pInputText class="w-full mb-3 border-round-3xl" formControlName="nombre">
+                    <div style="color: red;" *ngIf="formEditInventory.get('nombre').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <label>Descripción</label>
+                    <input type="text"  pInputText class="w-full mb-3 border-round-3xl" formControlName="descripcion">
+                    <div style="color: red;" *ngIf="formEditInventory.get('descripcion').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button pButton pRipple label="Editar Producto" icon="" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit" [disabled]="formEditInventory.invalid"></button>
+                </div>
+            </div>
+            <br>
+        </form>
+	</div>
+</p-dialog>

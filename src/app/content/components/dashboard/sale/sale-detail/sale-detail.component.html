@@ -1,0 +1,307 @@
+<ngx-spinner type="ball-scale-multiple"></ngx-spinner>
+
+<div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+    <div class="flex align-items-center flex-column lg:flex-row">
+        <div>
+            <button pButton pRipple label="" [routerLink]="'/dashboard/dashboardSell'" class="p-button-outlined mr-4" icon="pi pi-arrow-left"></button>
+        </div>
+        <div >
+            <div class="font-medium text-3xl text-900">Crear venta</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3" style="margin-bottom: 14px;">
+    <p-toolbar class="p-fluid">
+        <div class="col-12" style="display: flex; justify-content: space-between; align-items: center ;width: 100%">
+            <div [formGroup]="formCliente" class="col-6" style="display: flex; flex-direction: column;" >
+                <label for="cliente" style="font-size: large; margin-bottom: 15px;">Huésped</label>
+                <p-multiSelect class="multiselect-custom" [options]="clienteData" formControlName="cliente_id" selectionLimit="1" optionLabel="nombres" placeholder="Buscar huésped" display="chip" emptyMessage="Cargando huéspedes...">
+                    <ng-template let-cliente pTemplate="item">
+                        <div class="flex align-items-center">
+                            <span class="ml-2"> {{cliente.numero_documento}} {{cliente.nombres}} {{cliente.apellidos}}</span>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <button pButton pRipple label="Registrar nuevo huésped" type="button" icon="pi pi-plus" class="w-full bg-blue boder-blue mb-5 border-round-3xl" (click)="crearCliente()"></button>
+                    </ng-template>
+                </p-multiSelect>
+            </div>
+            <div class="col-6" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end;">
+                <div style="display: flex; flex-direction: row; gap: 30px;">
+                    <div class="font-medium text-3xl text-500">Total: ${{ total | number }}</div>
+                    <!-- <div class="font-medium text-3xl text-500">Pagado: ${{ totalMetodosPago | number }}</div> -->
+                </div>
+                <div class="flex-grow-1 text-right" style="margin-top: 20px;">
+                    <button [disabled]="total < 1" pButton pRipple label="Pagar" (click)="modals('Pagar')" class="p-button mr-2" icon=""></button>
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+</div>
+
+<div class="grid">
+    <div class="col-12">
+        <div class="card" style="padding: 30px; margin-top: 0;">
+            <h3>Detalles de venta</h3>
+            <div class="grid">
+                <div class="col-12 lg:col-5">
+                    <p-table [value]="totales" [tableStyle]="{ 'min-width': '20rem' }"
+                        responsiveLayout="scroll" [rows]="8">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Total</th>
+                                <th>Acción</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-total>
+                            <tr>
+                                <td>{{ total.nombre }}</td>
+                                <td>${{ total.total | number }}</td>
+                                <td *ngIf="total.accion; else emptyTd">
+                                  <button pButton pRipple (click)="modals(total.nombre)" class="p-button" icon="pi pi-plus"></button>
+                                </td>
+                                <ng-template #emptyTd><td></td></ng-template>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                <div class="col-7">
+                    <div style="padding: 10px;">
+                        <h5>Productos/Servicios</h5>
+                        <p-table [value]="productosAgregados" [tableStyle]="{ 'min-width': '35rem' }"
+                            responsiveLayout="scroll" [rows]="5">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th >Nombre</th>
+                                    <th >Precio</th>
+                                    <th >Impuesto</th>
+                                    <th >Cantidad</th>
+                                    <th >Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-producto>
+                                <tr>
+                                    <td>{{ producto.nombre | titlecase }}</td>
+                                    <td>${{ producto.subtotal | number }}</td>
+                                    <td>${{ producto.impuestos | number}}</td>
+                                    <td>{{ producto.cantidad }}<span style="color: orangered; font-size: xx-large;" *ngIf="producto.stockModificado" >*</span></td>
+                                    <td>${{ producto.total | number }}</td>
+                                    <td><p-button (click)="eliminarProducto(producto)" icon="pi pi-trash" severity="danger"></p-button></td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="footer" >
+                                <tr>
+                                    <td colspan="1">Totales:</td>
+                                    <td colspan="1"> ${{ totalProductos - totalProductosImpuestos| number }}</td>
+                                    <td colspan="2"> ${{ totalProductosImpuestos | number }}</td>
+                                    <td colspan="2"> ${{ totalProductos | number }}</td>
+                                </tr>
+                                <tr *ngIf="stockProductoModificado && productosAgregados.length > 0" >
+                                    <td style="color: orangered;" colspan="6">
+                                        <span>*</span>
+                                        El stock de estos productos ha sido actualizado.
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+
+                    <hr>
+
+                    <div style="padding: 10px;">
+                        <h5>Recetas</h5>
+                        <p-table [value]="recetasAgregadas" [tableStyle]="{ 'min-width': '35rem' }"
+                            responsiveLayout="scroll" [rows]="5">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Impuesto</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-receta>
+                                <tr>
+                                    <td>{{ receta.nombre | titlecase }}</td>
+                                    <td>${{ receta.subtotal | number }}</td>
+                                    <td>${{ receta.impuestos }}</td>
+                                    <td>{{ receta.cantidad }}</td>
+                                    <td>${{ receta.total | number }}</td>
+                                    <td><p-button (click)="eliminarReceta(receta)" icon="pi pi-trash" severity="danger"></p-button></td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="footer" >
+                                <tr>
+                                    <td colspan="1">Totales:</td>
+                                    <td colspan="1"> ${{ totalRecetas - totalRecetasImpuestos| number }}</td>
+                                    <td colspan="2"> ${{ totalRecetasImpuestos | number }}</td>
+                                    <td colspan="1"> ${{ totalRecetas | number }}</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog header="Agregar Producto/Servicio" [(visible)]="displayModalProducts" [modal]="true" [style]="{ width: '60vw' }"
+    [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formProducto" (ngSubmit)="agregarProductos()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-6 md:col-6">
+                    <label>Producto/Servicio</label>
+                    <p-dropdown [options]="productsData" formControlName="producto_id"
+                        placeholder="Buscar Producto/Servicio" optionLabel="nombre" class="dropdown-custom"
+                        emptyMessage="Cargando productos..." (onChange)="validarStock('producto')">
+
+                        <ng-template let-producto pTemplate="item">
+                            <div class="flex align-items-center" style="display: flex; justify-content: space-between;">
+                                <span class="ml-2">{{producto.nombre | titlecase}}</span>
+                                <div>
+                                    <p-tag class="padding" value="${{ producto.precioTotal | number }}"></p-tag>
+                                    <p-tag class="padding" value="Stock: {{ producto.sin_limite_cantidad == 1 ? producto.stockActual : 'Ilimitado'}}"></p-tag>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                    <div style="margin-top: 14px;"
+                        *ngIf="formProducto.get('producto_id').errors && (formProducto.get('producto_id').dirty || formProducto.get('producto_id').touched)">
+                        <span style="color: red;" *ngIf="formProducto.get('producto_id').hasError('required')">Producto es requerido.</span>
+                    </div>
+                </div>
+                <div class="field col-6 md:col-6">
+                    <label>Cantidad</label>
+                    <input type="number" min="1" formControlName="cantidad" placeholder="Cantidad" pInputText
+                        class="w-full mb-3 border-round-3xl" (input)="validarStock('producto')">
+                    <div style="color: red;" *ngIf="formProducto.get('cantidad').hasError('required')">Campo requerido</div>
+                    <div style="color: orangered;" *ngIf="validacionStock">La cantidad excede el stock disponible.</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button [disabled]="formProducto.invalid || validacionStock" pButton pRipple label="Agregar Producto" icon="pi pi-fw"
+                        class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"></button>
+                </div>
+            </div>
+            <br>
+        </form>
+    </div>
+</p-dialog>
+
+<p-dialog header="Agregar Receta" [(visible)]="displayModalRecipes" [modal]="true" [style]="{ width: '60vw' }"
+    [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formReceta" (ngSubmit)="agregarRecetas()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-6 md:col-6">
+                    <label>Receta</label>
+                    <p-dropdown [options]="recetasData" formControlName="receta_id"
+                        placeholder="Buscar Receta" optionLabel="nombre" class="dropdown-custom"
+                        emptyMessage="Cargando recetas...">
+
+                        <ng-template let-receta pTemplate="item">
+                            <div class="flex align-items-center" style="display: flex; justify-content: space-between;">
+                                <span class="ml-2">{{ receta.nombre }}</span>
+                                <p-tag class="padding" value="${{ receta.precioTotal | number }}"></p-tag>
+                                <!-- <p-tag class="padding" value="Stock:{{ receta.stockActual }}"></p-tag> -->
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                    <div style="margin-top: 14px;"
+                        *ngIf="formReceta.get('receta_id').errors && (formReceta.get('receta_id').dirty || formReceta.get('receta_id').touched)">
+                        <span style="color: red;" *ngIf="formReceta.get('receta_id').hasError('required')">Receta es requerida.</span>
+                    </div>
+                </div>
+                <div class="field col-6 md:col-6">
+                    <label>Cantidad</label>
+                    <input type="number" min="1" formControlName="cantidad" placeholder="Cantidad" pInputText
+                        class="w-full mb-3 border-round-3xl">
+                    <div style="color: red;" *ngIf="formReceta.get('cantidad').hasError('required')">Campo requerido</div>
+                    <div class="field col-12" style="color: red;" *ngIf="validacionStock">La cantidad excede el stock disponible.</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button [disabled]="formReceta.invalid" pButton pRipple label="Agregar Receta" icon="pi pi-fw"
+                        class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"></button>
+                </div>
+            </div>
+            <br>
+        </form>
+    </div>
+</p-dialog>
+
+<p-dialog header="Facturar" [(visible)]="displayModalMetodosPago" [modal]="true" [style]="{ width: '50vw' }"
+    [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formMetodoPago" (ngSubmit)="submitFactura()">
+            <div class="p-fluid p-formgrid grid" formArrayName="metodos_pago">
+                <div class="field col-12">
+                    <div class="font-medium text-2xl text-500 text-center">Total a pagar: ${{ total | number }}</div>
+                </div>
+                <div class="field col-12">
+                    <label>Agregar método de pago</label>
+                    <p-dropdown [options]="dataMetodosPago" optionLabel="nombre" emptyMessage="Cargando métodos de pago..."
+                        placeholder="Buscar Método de Pago" class="dropdown-custom" [autoDisplayFirst]="false" (onChange)="agregarMetodoPago($event)">
+                        <ng-template let-metodoPago pTemplate="item">
+                            <div class="flex align-items-center">
+                                <span class="ml-2">{{metodoPago.nombre}}</span>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+                <div  class="field col-12">
+                    <div class="grid" *ngFor="let metodoPago of metodosPago.controls; let i = index" [formGroupName]="i">
+                        <div class="col-6 md:col-5">
+                            <label>Método de Pago</label>
+                            <input type="text" min="1" formControlName="nombre" placeholder="Metodo de pago" pInputText
+                                class="w-full mb-3 border-round-3xl" disabled>
+                        </div>
+                        <div class="col-4 md:col-5">
+                            <label>Valor</label>
+                            <input type="number" min="1" formControlName="valor" placeholder="Valor" pInputText
+                                (blur)="calcularTotalMetodosPago()" class="w-full mb-3 border-round-3xl">
+                            <div style="color: red;" *ngIf="metodoPago.get('valor').hasError('required')">Campo requerido</div>
+                        </div>
+                        <div class="col-2 mt-4 eliminar-metodo-pago" *ngIf="metodosPago.controls.length > 1">
+                            <p-button pRipple type="button" (click)="eliminarMetodoPago(i)" icon="pi pi-trash" severity="danger"></p-button>
+                        </div>
+                    </div>
+                    <!-- <div class="font-medium text-2xl text-500">Pendiente: ${{ total - totalMetodosPago > 0 ? (total - totalMetodosPago | number) : 0 | number }}</div> -->
+
+                    <div class="col-6" style="padding: 0; margin-top: 15px;" *ngIf="totalMetodosPago!=(this.total)">
+                        <p-message  severity="error" text="El total ingresado no es igual al total a pagar" />
+                    </div>
+
+                    <hr>
+
+                    <div class="flex" style="justify-content: space-between;">
+                        <div class="flex align-items-center" style="gap: 10px">
+                            <!-- <p-message severity="info" text="Generar Factura electronica"></p-message>
+                            <form [formGroup]="formFacturar" (ngSubmit)="submitAbono()">
+                                <p-inputSwitch formControlName="isFacturaElectronica"></p-inputSwitch>
+                            </form> -->
+                            <span></span>
+                        </div>
+
+                        <div class="flex flex-column justify-end" style="justify-content: end; align-items: end;">
+                            <div class="font-medium text-2xl text-500 text-right">Total ingresado: ${{ totalMetodosPago | number }}</div>
+                            <div class="font-medium text-2xl text-500 text-right">Pendiente: ${{ total - totalMetodosPago > 0 ? (total - totalMetodosPago | number) : 0 | number }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field col-12">
+                <button pButton pRipple [label]="'Pagar'" (click)="crearVenta()" class="w-full bg-admin boder-admin mb-5 border-round-3xl" icon="" [disabled]="totalMetodosPago != total || total === 0 || formMetodoPago.invalid"></button>
+            </div>
+        </form>
+    </div>
+</p-dialog>
+
+
+<app-clientes *ngIf="creandoCliente" [vieneDeHabitaciones]="creandoCliente" (clienteCreado)="handleClienteCreado($event)" #clientes></app-clientes>

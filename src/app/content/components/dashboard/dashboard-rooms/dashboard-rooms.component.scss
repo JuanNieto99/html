@@ -1,0 +1,52 @@
+.rooms {
+    cursor: pointer;
+}
+
+.tag {
+    padding: 0.5%;
+    display: flex;
+    text-align: center;
+}
+
+.nomeRoome{
+    text-align: center;
+}
+
+.padding{
+    padding: 1%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+th, td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+th {
+  background-color: #f2f2f2;
+}
+
+.habilitarCursor{
+    cursor: pointer;
+}
+
+.container {
+    display: flex;
+    height: 0%;
+  }
+  .div1 {
+    flex: 1; /* Opcional: para que los divs tengan el mismo tamaño */
+    margin: 5px;
+    margin-left: -1%;
+    height: 0%;
+  }
+
+  .div2 {
+    flex: 1; /* Opcional: para que los divs tengan el mismo tamaño */
+    text-align: right;
+    height: 0%;
+  }

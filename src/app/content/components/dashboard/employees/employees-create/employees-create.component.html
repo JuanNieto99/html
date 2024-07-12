@@ -1,0 +1,57 @@
+<ngx-spinner type="ball-scale-multiple"></ngx-spinner>
+
+<div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+    <div class="flex align-items-center lg:flex-row justify-content-between">
+        <div class="flex align-items-center">
+            <button pButton pRipple label="" [routerLink]="'/dashboard/employees'" class="p-button-outlined mr-4" icon="pi pi-arrow-left"></button>
+            <div class="font-medium text-3xl text-900">Crear Empleado</div>
+        </div>
+        <div class="text-right">
+            <button pButton pRipple label="Guardar" (click)="empleadoCreate()" class="p-button-outlined" icon=""></button>
+        </div>
+    </div>
+    <div class="p-fluid p-formgrid">
+        <div class="grid mt-5">
+            <form [formGroup]="formAllData">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label>Hotel</label>
+                        <p-dropdown [options]="hoteles" optionLabel="nombre" formControlName="hotel_id"></p-dropdown>
+                        <div style="color: red;" *ngIf="formAllData.get('hotel_id').hasError('required')">Campo requerido</div>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Nombres</label>
+                        <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="nombres">
+                        <div style="color: red;" *ngIf="formAllData.get('nombres').hasError('required')">Campo requerido</div>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Apellidos</label>
+                        <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="apellidos">
+                        <div style="color: red;" *ngIf="formAllData.get('apellidos').hasError('required')">Campo requerido</div>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Tipo de documento</label>
+                        <p-dropdown [options]="documentos" optionLabel="nombre" formControlName="tipo_documento_id"></p-dropdown>
+                        <div style="color: red;" *ngIf="formAllData.get('tipo_documento_id').hasError('required')">Campo requerido</div>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Número documento</label>
+                        <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="numero_documento">
+                        <div style="color: red;" *ngIf="formAllData.get('numero_documento').hasError('required')">Campo requerido</div>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Número contacto</label>
+                        <input type="number" pInputText class="w-full mb-3 border-round-3xl" formControlName="celular">
+                        <div style="color: red;" *ngIf="formAllData.get('celular').hasError('required')">Campo requerido</div>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label>Genero</label>
+                        <p-dropdown [options]="generos" optionLabel="nombre" formControlName="genero_id"></p-dropdown>
+                        <div style="color: red;" *ngIf="formAllData.get('genero_id').hasError('required')">Campo requerido</div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

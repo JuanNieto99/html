@@ -1,0 +1,10 @@
+version: '3'
+services:
+  angular-app:
+    image: node:18.19.1
+    ports:
+      - "4200:4200"  # Puerto por defecto para la aplicación Angular
+    volumes:
+      - ./:/app  # Monta el directorio local con el código fuente de la aplicación en el contenedor
+    working_dir: /app  # Establece el directorio de trabajo en el directorio de la aplicación Angular
+    command: bash -c "npm install && npm install -g @angular/cli &&  ng serve --host 0.0.0.0 --disable-host-check"  # Instala las dependencias y ejecuta el servidor de desarrollo de Angular

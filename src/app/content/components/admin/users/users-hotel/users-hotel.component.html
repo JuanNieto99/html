@@ -1,0 +1,31 @@
+<ngx-spinner type="ball-scale-multiple" [fullScreen]="true"></ngx-spinner>
+
+<div class="card mb-3">
+    <div class="surface-section py-1 md:px-6 lg:px-8">
+        <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-column">
+                <div class="flex">
+                    <button pButton pRipple label="" [routerLink]="'/dashboard/admin/users'" class="p-button-outlined mr-4" icon="pi pi-arrow-left">
+                    </button>
+                    <div class="flex align-items-center font-medium text-3xl text-900">
+                        Hoteles del usuario
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <p-tree
+        [value]="hoteles"
+        class="w-full md:w-30rem"
+        [filter]="true"
+        filterPlaceholder="Escriba para buscar..."
+        filterMode="lenient"
+        selectionMode="checkbox"
+        [(selection)]="hotelesSeleccionados"
+        [loading]="loading"
+    />
+    <div class="flex justify-content-end mt-3">
+        <button pButton (click)="saveHotelsByUser()" type="button" label="Guardar" severity="success" class="border-round-3xl bg-admin boder-admin mt-3 w-full"></button>
+    </div>
+</div>
+

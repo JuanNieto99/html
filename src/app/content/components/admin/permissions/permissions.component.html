@@ -1,0 +1,105 @@
+<p-toast></p-toast>
+<div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+    <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-row">
+        <div>
+            <div class="font-medium text-3xl text-900">Permisos</div>
+        </div>
+        <div class="mt-3 lg:mt-0">
+            <button pButton pRipple label="Crear" (click)="modalNewP()" *ngIf="permisoCrear" class="p-button-outlined mr-2" ></button>
+        </div>
+    </div>
+</div>
+<div class="grid mt-3">
+    <div class="col-12">
+        <div class="card px-3 py-3">
+            <p-table [value]="permission" [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll" [loading]="loadingTable" [rows]="8" [globalFilterFields]="['nombre','medida','precio','cantidad', 'inventario','acciones']"  selectionMode="multiple" [rowHover]="true" dataKey="usuario" (onPage)="onPage($event)">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span></span>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <form [formGroup]="formSearch" >
+                                <div class="p-inputgroup">
+                                    <input formControlName="search"  (keyup.enter)="buscarPorTecla($event)"  pInputText type="text" placeholder="Buscar..." (input)="searchInput()" class="w-full sm:w-auto"/>
+                                    <button type="button" pButton pRipple   class="pi pi-search" (click)="search()"></button>
+                                </div>
+                            </form>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 20%;">Nombre</th>
+                        <th style="width: 20%;">Código</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-permit>
+                    <tr>
+                        <!--td>
+                            <p-tableCheckbox [value]="permission"></p-tableCheckbox>
+                        </td-->
+                        <td>{{ permit.nombre }}</td>
+                        <td>{{ permit.codigo }}</td>
+                        <td>{{ permit.descripcion }}</td>
+                        <td class="flex gap-2">
+                            <p-button (click)="getPermission(permit.id)" *ngIf="permisoActualizar" icon="pi pi-pencil" severity="info"></p-button>
+                            <p-confirmDialog></p-confirmDialog>
+                            <p-button (click)="confirmDelete(permit.id)" *ngIf="permisoEliminar" icon="pi pi-trash" severity="danger"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <br>
+            <div style="text-align: center;">
+                <span class="p-buttonset">
+                    <button pButton pRipple label="" icon="pi pi-arrow-left"   [disabled]="!disablePageLeft" (click)="leftTable()" ></button>
+                    <button pButton pRipple [label]="pageActual" ></button>
+                    <button pButton pRipple label="" icon="pi pi-arrow-right" [disabled]="!disablePageRight" (click)="rightTable()"></button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Crear -->
+<p-dialog header="Crear un Permiso" [(visible)]="crearPermit" [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formNewP" (ngSubmit)="createPermission()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-4">
+                    <label>Nombre del permiso</label>
+                    <input type="text" placeholder="Auditar" pInputText class="w-full mb-3 border-round-3xl" formControlName="nombre">
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Código</label>
+                    <input type="text" placeholder="aut" pInputText class="w-full mb-3 border-round-3xl" formControlName="codigo">
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Descripción</label>
+                    <input type="text"  pInputText class="w-full mb-3 border-round-3xl" formControlName="descripcion">
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button [disabled]="formNewP.invalid" pButton pRipple label="Crear Permiso" icon="pi pi-user" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"></button>
+                </div>
+            </div>
+        </form>
+	</div>
+</p-dialog>
+<!-- Editar -->
+<p-dialog header="Editar permisos" [(visible)]="editarPermit" [style]="{width: '95vw'}" modal="modal" (onVisibleChange)="editarPermit = !editarPermit" [draggable]="false" [resizable]="false">
+    <form [formGroup]="formEditP" (ngSubmit)="updatePermission()">
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-4">
+                <label>Nombre del permiso</label>
+                <input *ngIf="editarPermit" type="text" [value]=" permissionData.nombre " pInputText class="w-full mb-3 border-round-3xl" formControlName="nombre">
+            </div>
+            <div class="field col-12 md:col-4">
+                <label>Código</label>
+                <input *ngIf="editarPermit" type="text" [value]=" permissionData.codigo "  pInputText class="w-full mb-3 border-round-3xl" formControlName="codigo">
+            </div>
+            <div class="field col-12 md:col-12">
+                <button [disabled]="formEditP.invalid" pButton pRipple label="Editar Permiso" icon="pi pi-user" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"></button>
+            </div>
+        </div>
+    </form>
+</p-dialog>

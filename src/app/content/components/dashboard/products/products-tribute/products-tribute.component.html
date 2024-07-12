@@ -1,0 +1,258 @@
+<!-- products-tribute.component.html -->
+
+<ngx-spinner type="ball-scale-multiple" [fullScreen]="true"></ngx-spinner>
+
+<div class="card mb-3">
+    <div class="surface-section px-2 pt-3 md:px-6 lg:px-8">
+        <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-column">
+                <div class="flex">
+                    <button pButton pRipple label="" [routerLink]="'/dashboard/products'" class="p-button-outlined mr-4" icon="pi pi-arrow-left">
+                    </button>
+                    <div class="flex align-items-center font-medium text-3xl text-900">
+                        Detalle de Producto
+                    </div>
+                </div>
+                <div>
+                    <form [formGroup]="form">
+                        <br>
+                        <div class="p-fluid p-formgrid grid">
+                            <div class="field col-6 md:col-4">
+                                <label>Nombre</label>
+                                <input type="text" formControlName="nombreProducto" pInputText
+                                    class="w-full mb-3 border-round-3xl">
+                            </div>
+                            <div class="field col-6 md:col-4">
+                                <label> Precio </label>
+                                <input type="text" formControlName="precio" pInputText class="w-full mb-3 border-round-3xl">
+                            </div>
+                            <div class="field col-6 md:col-4">
+                                <label>Medida</label>
+                                <br>
+                                <input type="text" formControlName="medida" pInputText class="w-full mb-3 border-round-3xl">
+                            </div>
+                            <div class="field col-12 md:col-4">
+                                <label>Total productos disponibles</label>
+                                <br>
+                                <input type="text" pInputText class="w-full mb-3 border-round-3xl" [value]="totalDisponible()" disabled="true">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <p-tabView orientation="left">
+        <p-tabPanel header="Detalles Producto" class="line-height-3 m-0" *ngIf="permisoDetalle">
+            <div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+                <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-row">
+                    <div>
+                        <div class="font-medium text-3xl text-900">
+                            <button pButton pRipple type="button" icon="pi pi-plus"
+                                class="p-button-rounded p-button-text" (click)="openModalAgregar()"></button>
+                            Agregar Producto
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid mt-3">
+                <div class="col-12">
+                    <div class="card px-3 py-3">
+                        <p-table
+                            [value]="dataDetails"
+                            [tableStyle]="{ 'min-width': '50rem' }"
+                            responsiveLayout="scroll"
+                            [loading]="loadingTable"
+                            [rows]="8"
+                            [rowHover]="true">
+                            <ng-template pTemplate="caption">
+                                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                    <span></span>
+                                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                        <form [formGroup]="formSearch">
+                                            <div class="p-inputgroup">
+                                                <input
+                                                    formControlName="search"
+                                                    (keyup.enter)="buscarPorTeclaDetalles($event)"
+                                                    pInputText
+                                                    type="text"
+                                                    placeholder="Buscar..."
+                                                    (input)="searchInputDetalles()"
+                                                    class="w-full sm:w-auto"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    pButton
+                                                    pRipple
+                                                    class="pi pi-search"
+                                                    (click)="searchDetalles()"
+                                                ></button>
+                                            </div>
+                                        </form>
+                                    </span>
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="header">
+                            <tr>
+                            <th>Cantidad</th>
+                            <th>Tipo de operación</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                            </tr>
+                           </ng-template>
+                            <ng-template pTemplate="body" let-product>
+                                <tr>
+                                    <td>{{ product.cantidad }}</td>
+                                    <td>{{tipo_operacion_name(product.tipo_operacion_id)}}</td>
+                                    <td [ngStyle]="{'color': getColor(product.estado), 'font-weight': 900 }">{{ operacion(product.estado) }}</td>
+                                    <td class="flex gap-2" *ngIf="product.estado == 2 && product.id === ultimoIngresado.id">
+                                        <p-button (click)="eliminarProducto(product.id)" icon="pi pi-trash" severity="danger"></p-button>
+                                    </td>
+                                    <td *ngIf="!(product.estado == 2 && product.id === ultimoIngresado.id)">
+
+                                    </td>
+                                    <ng-template #relleno >
+                                        <td></td>
+                                    </ng-template>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="loadingbody">
+                                <tr>
+                                    <td colspan="8">Cargando informacion porfavor espere ...</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <br>
+                        <div style="text-align: center;">
+                            <span class="p-buttonset">
+                              <button pButton pRipple label="" icon="pi pi-arrow-left" [disabled]="!disablePageLeftDetalles" (click)="leftTableDetalles()"></button>
+                              <button pButton pRipple [label]="pageActualDetalles"></button>
+                              <button pButton pRipple label="" icon="pi pi-arrow-right" [disabled]="!disablePageRightDetalles" (click)="rightTableDetalles()"></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+        <p-tabPanel header="Impuestos Producto" class="line-height-3 m-0" *ngIf="permisoImpuesto">
+            <div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+                <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-row">
+                    <div>
+                        <div class="font-medium text-3xl text-900">
+                            <button pButton pRipple type="button" icon="pi pi-plus"
+                                class="p-button-rounded p-button-text" (click)="openModalCrear()"></button>
+                            Agregar Impuesto
+                        </div>
+                    </div>
+                    <div class="mt-3 lg:mt-0">
+                        <button pButton pRipple label="Guardar" (click)="enviarImpuesto()" class="p-button-outlined mr-2"
+                            icon=""></button>
+                    </div>
+                </div>
+            </div>
+            <div class="grid mt-3">
+                <div class="col-12">
+                    <div class="card px-3 py-3">
+                        <p-table [value]="impuestosData" [tableStyle]="{ 'min-width': '50rem' }"
+                            responsiveLayout="scroll" [loading]="loadingTable" [rows]="8">
+                            <ng-template pTemplate="caption">
+                                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                    <span></span>
+                                    <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                        <form [formGroup]="formSearch">
+                                            <div class="p-inputgroup">
+                                                <input
+                                                    formControlName="search"
+                                                    (keyup.enter)="buscarPorTeclaImpuestos($event)"
+                                                    pInputText
+                                                    type="text"
+                                                    placeholder="Buscar..."
+                                                    (input)="searchInputImpuestos()"
+                                                    class="w-full sm:w-auto"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    pButton
+                                                    pRipple
+                                                    class="pi pi-search"
+                                                    (click)="searchImpuestos()"
+                                                ></button>
+                                            </div>
+                                        </form>
+                                    </span>
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="header">
+                            <tr>
+                            <th>Nombre</th>
+                            <th>Porcentaje</th>
+                            <th>Acciones</th>
+                            </tr>
+                           </ng-template>
+                            <ng-template pTemplate="body" let-product>
+                                <tr>
+                                    <td>{{ product.nombre }}</td>
+                                    <td>{{ product.porcentaje }}</td>
+                                    <td class="flex gap-2">
+                                        <p-button (click)="confirmDelete(product.id)" icon="pi pi-trash" severity="danger"></p-button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="loadingbody">
+                                <tr>
+                                    <td colspan="8">Cargando informacion porfavor espere ...</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <br>
+                        <div style="text-align: center;">
+                            <span class="p-buttonset">
+                              <button pButton pRipple label="" icon="pi pi-arrow-left" [disabled]="!disablePageLeftImpuestos" (click)="leftTableImpuestos()"></button>
+                              <button pButton pRipple [label]="pageActualImpuestos"></button>
+                              <button pButton pRipple label="" icon="pi pi-arrow-right" [disabled]="!disablePageRightImpuestos" (click)="rightTableImpuestos()"></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+
+<p-dialog header="Agregar Producto" [(visible)]="productoModalAgregar" [modal]="true" [style]="{ width: '60vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formCreateDetalle" (ngSubmit)="agregarProducto()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-12" >
+                    <label>Agregar</label>
+                    <input type="number" min="1" formControlName="cantidad" placeholder="Cantidad" pInputText
+                        class="w-full mb-3 border-round-3xl" >
+                    <div style="color: red;" *ngIf="formCreateDetalle.get('cantidad').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button pButton pRipple label="Agregar producto" icon="pi pi-fw" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit" [disabled]="formCreateDetalle.invalid"></button>
+                </div>
+            </div>
+            <br>
+        </form>
+	</div>
+</p-dialog>
+
+<p-dialog header="Agregar Impuesto" [(visible)]="impuestoModalCrear" [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formCreate" (ngSubmit)="submitCreate()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-12" >
+                    <label>Impuesto</label>
+                    <p-dropdown [options]="impuestos" (onChange)="onChangeCreateImpuesto()" formControlName="impuesto"  optionLabel="nombre"  ></p-dropdown>
+                    <div style="color: red;" *ngIf="formCreate.get('impuesto').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button pButton pRipple label="Agregar Impuesto" icon="pi pi-fw" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"></button>
+                </div>
+            </div>
+            <br>
+        </form>
+	</div>
+</p-dialog>

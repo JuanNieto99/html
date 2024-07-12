@@ -1,0 +1,161 @@
+<ngx-spinner type="ball-scale-multiple"></ngx-spinner>
+
+<div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+    <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-row">
+        <div>
+            <div class="font-medium text-3xl text-900">Recibos internos</div>
+        </div>
+        <div class="mt-3 lg:mt-0">
+            <button pButton pRipple label="Crear" (click)="openModal()" *ngIf="permisoCrear" class="p-button-outlined mr-2" icon=""></button>
+            <!--button pButton pRipple label="Exportar" icon="pi pi-check"></button-->
+        </div>
+    </div>
+</div>
+<div class="grid mt-3">
+    <div class="col-12">
+        <div class="card px-3 py-3">
+           <p-table [value]="internalSequenceData"  [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll" [loading]="loadingTable" [rows]="8" [globalFilterFields]="['nombre','descripcion_secuencia','secuencia_incial','secuencia_actual','acciones']"  selectionMode="multiple" [rowHover]="true" dataKey="usuario" (onPage)="onPage($event)">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span></span>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <form [formGroup]="formSearch" >
+                                <div class="p-inputgroup">
+                                    <input formControlName="search"  (keyup.enter)="buscarPorTecla($event)" pInputText type="text" placeholder="Buscar..."   (input)="searchInput()"  class="w-full sm:w-auto"/>
+                                    <button type="button" pButton pRipple   class="pi pi-search" (click)="search()"></button>
+                                </div>
+                                    <!--i class="pi pi-search"></i>
+                                    <input formControlName="search" pInputText type="text" placeholder="Buscar..."  (input)="search(dt)" class="w-full sm:w-auto"/-->
+                            </form>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Hotel</th>
+                        <th>Descripción</th>
+                        <th>Recibo inicial</th>
+                        <th>Recibo actual</th>
+                        <th>Tipo operación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-internalSequence>
+                    <tr>
+                        <td>{{ internalSequence.hotel.nombre }}</td>
+                        <td>{{ internalSequence.descripcion_secuencia }}</td>
+                        <td>{{ internalSequence.secuencia_incial }}</td>
+                        <td>{{ internalSequence.secuencia_actual }}</td>
+                        <td>{{ internalSequence?.tipo_operacion?.nombre }}</td>
+                        <td class="flex gap-2">
+                            <p-button (click)="editInternalSequence(internalSequence.id)" *ngIf="permisoActualizar" icon="pi pi-pencil" severity="info"></p-button>
+                            <p-confirmDialog></p-confirmDialog>
+                            <p-button (click)="confirmDelete(internalSequence.id)" *ngIf="permisoEliminar"  icon="pi pi-trash" severity="danger"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="loadingbody">
+					<tr>
+						<td colspan="8">Cargando informacion porfavor espere ...</td>
+					</tr>
+				</ng-template>
+            </p-table>
+            <br>
+            <div style="text-align: center;">
+                <span class="p-buttonset">
+                    <button pButton pRipple label="" icon="pi pi-arrow-left"   [disabled]="!disablePageLeft" (click)="leftTable()" ></button>
+                    <button pButton pRipple [label]="pageActual" ></button>
+                    <button pButton pRipple label="" icon="pi pi-arrow-right" [disabled]="!disablePageRight" (click)="rightTable()"></button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Crear-->
+<p-dialog header="Crear Recibo interno" [(visible)]="visibleModalInternalSequence" [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formCreateInternalSequence" (ngSubmit)="submitCreate()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-6">
+					<label>Hotel</label>
+					<p-dropdown [options]="hotel" optionLabel="nombre" formControlName="hotel_id" ></p-dropdown>
+                    <div style="color: red;" *ngIf="formCreateInternalSequence.get('hotel_id').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+					<label>Tipo operación</label>
+					<p-dropdown [options]="tipo_operacion" optionLabel="nombre" formControlName="tipo_operacion_id" ></p-dropdown>
+                    <div style="color: red;" *ngIf="formCreateInternalSequence.get('tipo_operacion_id').hasError('required')">Campo requerido</div>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label>Recibo inicial</label>
+                    <input type="number" min="0" pInputText class="w-full mb-3 border-round-3xl" formControlName="secuencia_incial">
+                    <div style="color: red;" *ngIf="formCreateInternalSequence.get('secuencia_incial').hasError('required')">Campo requerido</div>
+                    <p-message severity="error" class="padding" text="El Recibo inicial no puede ser mayor al Recibo actual"
+                     *ngIf="esMayor(formCreateInternalSequence.get('secuencia_incial').value, formCreateInternalSequence.get('secuencia_actual').value)" >
+                    </p-message>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Recibo actual</label>
+                    <input type="number" min="0" pInputText class="w-full mb-3 border-round-3xl" formControlName="secuencia_actual">
+                    <div style="color: red;" *ngIf="formCreateInternalSequence.get('secuencia_actual').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <label>Descripción</label>
+                    <textarea type="text" pInputTextarea  rows="3" cols="20" formControlName="descripcion_secuencia"></textarea>
+                    <div style="color: red;" *ngIf="formCreateInternalSequence.get('descripcion_secuencia').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+
+                    <button pButton pRipple label="Crear Recibo interno" icon="" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"
+                    [disabled]="esMayor(formCreateInternalSequence.get('secuencia_incial').value, formCreateInternalSequence.get('secuencia_actual').value) || !formCreateInternalSequence.valid"
+                    ></button>
+                </div>
+            </div>
+            <br>
+        </form>
+	</div>
+</p-dialog>
+<!--Editar-->
+<p-dialog header="Editar Recibo interno" [(visible)]="visibleModalInternalSequenceEditar"  [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formEditInternalSequence" (ngSubmit)="submitUpdate()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-6">
+					<label>Hotel</label>
+					 <p-dropdown [options]="hotel" optionLabel="nombre" formControlName="hotel_id" ></p-dropdown>
+                     <div style="color: red;" *ngIf="formEditInternalSequence.get('hotel_id').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+					<label>Tipo operación</label>
+					<p-dropdown [options]="tipo_operacion" optionLabel="nombre" formControlName="tipo_operacion_id" ></p-dropdown>
+                    <div style="color: red;" *ngIf="formCreateInternalSequence.get('tipo_operacion_id').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Recibo inicial</label>
+                    <input type="number" min="0" pInputText class="w-full mb-3 border-round-3xl" formControlName="secuencia_incial">
+                    <div style="color: red;" *ngIf="formEditInternalSequence.get('secuencia_incial').hasError('required')">Campo requerido</div>
+                    <p-message severity="error" class="padding" text="El Recibo inicial no puede ser mayor al Recibo actual"
+                     *ngIf="esMayor(formEditInternalSequence.get('secuencia_incial').value, formEditInternalSequence.get('secuencia_actual').value)" >
+                    </p-message>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Recibo actual</label>
+                    <input type="number" min="0" pInputText class="w-full mb-3 border-round-3xl" formControlName="secuencia_actual">
+                    <div style="color: red;" *ngIf="formEditInternalSequence.get('secuencia_actual').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <label>Descripción</label>
+                    <textarea type="text" pInputTextarea    rows="3" cols="20"  formControlName="descripcion_secuencia"></textarea>
+                    <div style="color: red;" *ngIf="formEditInternalSequence.get('descripcion_secuencia').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button pButton pRipple label="Editar Recibo interno" icon="" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"
+                    [disabled]=" esMayor(formEditInternalSequence.get('secuencia_incial').value, formEditInternalSequence.get('secuencia_actual').value) || !formEditInternalSequence.valid"
+                    ></button>
+                </div>
+            </div>
+            <br>
+        </form>
+	</div>
+</p-dialog>

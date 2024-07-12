@@ -1,0 +1,212 @@
+<p-toast></p-toast>
+<ngx-spinner type="ball-scale-multiple"></ngx-spinner>
+
+<div class="surface-section px-4 py-5 md:px-6 lg:px-8">
+    <div class="flex align-items-start flex-column lg:justify-content-between lg:flex-row">
+        <div>
+            <div class="font-medium text-3xl text-900">Hoteles</div>
+            <div class="flex align-items-center text-700 flex-wrap">
+                <div class="mr-5 flex align-items-center mt-3">
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 lg:mt-0">
+            <button pButton pRipple label="Crear" (click)="modalNewHotel()" *ngIf="permisoCrear"  class="p-button-outlined mr-2"  ></button>
+        </div>
+    </div>
+</div>
+<div class="grid mt-3">
+    <div class="col-12">
+        <div class="card px-3 py-3">
+            <p-table [value]="hotels" [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll" [loading]="loadingTable" [rows]="8" [globalFilterFields]="['nombre','medida','precio','cantidad', 'inventario','acciones']"  selectionMode="multiple" [rowHover]="true" dataKey="usuario" (onPage)="onPage($event)">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span></span>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <form [formGroup]="formSearch">
+                                <div class="p-inputgroup">
+                                    <input formControlName="search" pInputText type="text" placeholder="Buscar..."  (keyup.enter)="buscarPorTecla($event)"  (input)="searchInput()"  class="w-full sm:w-auto"/>
+                                    <button type="button" pButton pRipple class="pi pi-search" (click)="search()"></button>
+                                </div>
+                            </form>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Contacto</th>
+                        <th>Celular de contacto</th>
+                        <th>Nit</th>
+                        <th>Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-hotel>
+                    <tr>
+                        <td>{{ hotel.nombre }}</td>
+                        <td>{{ hotel.email }}</td>
+                        <td>{{ hotel.contacto }}</td>
+                        <td>{{ hotel.contacto_telefono }}</td>
+                        <td>{{ hotel.nit }}</td>
+                        <td class="flex gap-2">
+                            <p-button (click)="getHotel(hotel.id)" *ngIf="permisoActualizar" icon="pi pi-pencil" severity="info"></p-button>
+                            <p-confirmDialog></p-confirmDialog>
+                            <p-button (click)="confirmDelete(hotel.id)" *ngIf="permisoEliminar"  icon="pi pi-trash" severity="danger"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <br>
+            <div style="text-align: center;">
+                <span class="p-buttonset">
+                    <button pButton pRipple label="" icon="pi pi-arrow-left" [disabled]="!disablePageLeft" (click)="leftTable()"></button>
+                    <button pButton pRipple [label]="pageActual"></button>
+                    <button pButton pRipple label="" icon="pi pi-arrow-right" [disabled]="!disablePageRight" (click)="rightTable()"></button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<p-dialog header="Crear Hotel" [(visible)]="crearH" [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formNewHotel" (ngSubmit)="createHotel()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <label>Nombre del hotel</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="nombre">
+                    <div style="color: red;" *ngIf="formNewHotel.get('nombre').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Nit</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="nit">
+                    <div style="color: red;" *ngIf="formNewHotel.get('nit').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Razon social</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="razon_social">
+                    <div style="color: red;" *ngIf="formNewHotel.get('razon_social').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>País</label>
+                    <p-dropdown [options]="countries$" [(ngModel)]="selectedCountry" [ngModelOptions]="{standalone: true}" optionLabel="nombre" (onChange)="getStates()"></p-dropdown>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Departamento</label>
+                    <p-dropdown [options]="states$" [(ngModel)]="selectedState" [ngModelOptions]="{standalone: true}" optionLabel="nombre" (onChange)="getCities()"></p-dropdown>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Ciudad</label>
+                    <p-dropdown [options]="cities$"  [(ngModel)]="selectedCity" [ngModelOptions]="{standalone: true}" optionLabel="nombre"></p-dropdown>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Direccion</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="direccion">
+                    <div style="color: red;" *ngIf="formNewHotel.get('direccion').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Telefono</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="telefono">
+                    <div style="color: red;" *ngIf="formNewHotel.get('telefono').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Numero habitaciones</label>
+                    <input type="number" min="1" pInputText class="w-full mb-3 border-round-3xl" formControlName="cantidad_habitaciones">
+                    <div style="color: red" *ngIf="formNewHotel.get('cantidad_habitaciones').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Contacto</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="contacto">
+                    <div style="color: red;" *ngIf="formNewHotel.get('contacto').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Contacto cargo</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="contacto_cargo">
+                    <div style="color: red;" *ngIf="formNewHotel.get('contacto_cargo').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Contacto telefono</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="contacto_telefono">
+                    <div style="color: red;" *ngIf="formNewHotel.get('contacto_telefono').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <label>Correo electrónico</label>
+                    <input type="email" pInputText class="w-full mb-3 border-round-3xl" formControlName="email">
+                    <div style="color: red;" *ngIf="formNewHotel.get('email').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <label>Imágenes</label>
+                    <p-fileUpload name="imágenes[]" #fileUploadCreate chooseLabel="Seleccionar" [showUploadButton]="false" cancelLabel="Cancelar" accept="image/*" [maxFileSize]="1000000" (onRemove)="onRemove($event)" (onClear)="onRemove($event)" (onSelect)="onSelect($event)"></p-fileUpload>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button [disabled]="formNewHotel.invalid" pButton pRipple label="Crear Hotel" icon="pi pi-hotel" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"></button>
+                </div>
+            </div>
+        </form>
+	</div>
+</p-dialog>
+<p-dialog header="Editar Hotel" [(visible)]="editarH" [modal]="true" [style]="{ width: '95vw' }" [draggable]="false" [resizable]="false">
+    <div class="col-12">
+        <form [formGroup]="formEditHotel" (ngSubmit)="updateHotel()">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <label>Nombre del Hotel</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="nombre">
+                    <div style="color: red;" *ngIf="formEditHotel.get('nombre').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Email</label>
+                    <input id="email1" type="email" pInputText class="w-full mb-3 border-round-3xl" formControlName="email">
+                    <div style="color: red;" *ngIf="formEditHotel.get('email').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Numero de habitaciones</label>
+                    <input type="number" min="1" pInputText class="w-full mb-3 border-round-3xl" formControlName="cantidad_habitaciones">
+                    <div style="color: red;" *ngIf="formEditHotel.get('cantidad_habitaciones').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Direccion</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="direccion">
+                    <div style="color: red;" *ngIf="formEditHotel.get('direccion').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Telefono</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="telefono">
+                    <div style="color: red;" *ngIf="formEditHotel.get('telefono').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Contacto</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="contacto">
+                    <div style="color: red;" *ngIf="formEditHotel.get('contacto').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Cargo</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="contacto_cargo">
+                    <div style="color: red;" *ngIf="formEditHotel.get('contacto_cargo').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-4">
+                    <label>Contacto telefono</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="contacto_telefono">
+                    <div style="color: red;" *ngIf="formEditHotel.get('contacto_telefono').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Razón social</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="razon_social">
+                    <div style="color: red;" *ngIf="formEditHotel.get('razon_social').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label>Nit</label>
+                    <input type="text" pInputText class="w-full mb-3 border-round-3xl" formControlName="nit">
+                    <div style="color: red;" *ngIf="formEditHotel.get('nit').hasError('required')">Campo requerido</div>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <label>Imágenes</label>
+                    <p-fileUpload name="imsgenes[]" #fileUpload chooseLabel="Seleccionar" [showUploadButton]="false" cancelLabel="Cancelar" accept="image/*"  [maxFileSize]="1000000"  (onRemove)="onRemove($event)" (onClear)="onRemove($event)" (onSelect)="onSelect($event)"></p-fileUpload>
+                </div>
+                <div class="field col-12 md:col-12">
+                    <button [disabled]="formEditHotel.invalid" pButton pRipple label="Editar Hotel" icon="pi pi-user" class="w-full bg-admin boder-admin mb-5 border-round-3xl" type="submit"></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</p-dialog>

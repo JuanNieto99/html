@@ -1,0 +1,25 @@
+.flex {
+    display: flex;
+    align-items: center; /* Esto alineará los elementos verticalmente en el centro */
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+.text-right {
+    text-align: right; /* Esto alineará los botones "Pagar" y "Guardar" a la derecha */
+}
+
+.mr-2 {
+    margin-right: 2rem; /* Esto agregará un espacio entre los botones "Pagar" y "Guardar" */
+}
+
+.multiselect-custom {
+    width: 100% !important;
+}
+
+.padding{
+    padding: 1%;
+}
+

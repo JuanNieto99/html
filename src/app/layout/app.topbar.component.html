@@ -1,0 +1,64 @@
+<div class="layout-topbar">
+    <a class="layout-topbar-logo" routerLink="">
+        <img src="assets/layout/images/{{layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
+    </a>
+
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" (click)="layoutService.showProfileSidebar()">
+        <i class="pi pi-ellipsis-v"></i>
+    </button>
+
+    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}" >
+
+        <div
+            [routerLink]="'/dashboard/admin/wallets/detail'"
+            class="topbar-buttons caja"
+            id="caja"
+        >
+            <i class="pi pi-wallet"></i>
+            <span>
+                <strong>{{ nombreCaja? nombreCaja + " " + saldo : "No hay caja creada"}} </strong>
+            </span>
+        </div>
+
+        <div
+            [routerLink]="'/dashboard/calendar'"
+            class="topbar-buttons calendario"
+            id="calendario"
+        >
+            <i class="pi pi-calendar"></i>
+            <span>
+                <strong>Calendario</strong>
+            </span>
+        </div>
+
+        <div
+            class="topbar-buttons usuario"
+            id="usuario"
+        >
+            <i class="pi pi-user"></i>
+            <div class="user-label">
+                <span>
+                    <strong>Usuario:</strong>&nbsp;{{ currentUser | titlecase }}
+                </span>
+                <span>
+                    <strong>Rol:</strong>&nbsp;{{ currentRole | titlecase }}
+                </span>
+            </div>
+        </div>
+
+        <div
+            class="topbar-buttons logout"
+            id="logout"
+            (click)="cerrarSesion()"
+        >
+            <i class="pi pi-sign-out"></i>
+            <span class="logout-label">
+                <strong>Cerrar sesión</strong>
+            </span>
+        </div>
+    </div>
+</div>
